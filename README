@@ -1,0 +1,50 @@
+Organizer for memory
+
+based of http://en.wikipedia.org/wiki/Forgetting_curve
+
+after first adding repeat:
+1. +20m
+2. +8h
+3. +24h (one day)
+4. +168h (one week)
+5. +1344h (two mounth)
+
+Depends: UNIX with libnotify
+
+EXAMPLE WITH CRON:
+
+    add this script to cron
+    0-59 * *   *   *     /path/to/orgnoti_show.sh
+
+create 'orgnoti_show.sh':
+----------------
+DISPLAY=`/path/to/get_display.sh`
+export DISPLAY
+
+python /path/to/orgnoti.py
+----------------
+
+create 'get_display.sh':
+----------------
+#!/bin/sh
+#
+
+# get_display [USER] — Returns $DISPLAY of USER.
+# If first param is omitted, then $LOGNAME will be used.
+get_display () {
+    who \
+    | grep ${1:-$LOGNAME} \
+    | perl -ne 'if ( m!\(\:(\d+)\)$! ) {print ":$1.0\n"; $ok = 1; last} END {exit !$ok}'
+}
+get_display
+----------------
+
+
+For add memory notice: orgnoti.py ANYTHING TEXT FOR REMEMBER
+or
+orgnoti.py 'Many many many text
+bla-bla-bla
+<a href='http://example.com'>CLICK HERE</a>
+'
+
+Good luck :3
