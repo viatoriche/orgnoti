@@ -52,6 +52,7 @@ import sqlite3
 import datetime
 import time
 import sys
+import re
 
 # Initialization of pynotify, and add type of notify
 pynotify.init(noti_class)
@@ -113,6 +114,10 @@ class Organizer(SimpleNoti):
 
     def add(self, text, repeat = 1):
         cur = self.conn.cursor()
+
+        for url in re.findall(r'(?<!\])\bhttp://[^\s\[<]+', text):
+            text = text.replace(url, '<a href="{url}">{url}</a>'.format(url = url))
+
         cur.execute("INSERT INTO Mems(Text, Date, Repeat) "\
                     "VALUES('{text}', '{now}', {repeat})"\
                     .format(now = datenow(getinc(repeat)), text = text,
