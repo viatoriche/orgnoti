@@ -122,9 +122,10 @@ class Organizer(SimpleNoti):
             text = text.replace(url, '<a href="{url}">{url}</a>'.format(url = url))
 
         cur.execute("INSERT INTO Mems(Text, Date, Repeat) "\
-                    "VALUES('{text}', '{now}', {repeat})"\
-                    .format(now = datenow(getinc(repeat)), text = text,
-                            repeat = repeat))
+                    "VALUES(?, ?, ?)",\
+                    (text,
+                     datenow(getinc(repeat)),
+                     repeat))
         self.conn.commit()
 
     def update(self, id, repeat):
@@ -140,8 +141,8 @@ class Organizer(SimpleNoti):
     def show(self):
         cur = self.conn.cursor()
         noti_list = cur.execute("SELECT Id, Text, Repeat FROM Mems "\
-                                "WHERE Date <= '{now}'"\
-                                .format(now = datenow())).fetchall()
+                                "WHERE Date <= {}".format(
+                                (datenow()))).fetchall()
         for id, text, repeat in noti_list:
             SimpleNoti.show(self, '<i>{date}</i> → {text}'.format(text = text,
                                 date = datetime.datetime.now().ctime()))
@@ -152,16 +153,18 @@ class Organizer(SimpleNoti):
 
 
 if __name__ == "__main__":
-    #s = SimpleNoti()
-    #s.show('test')
-    if '--show' not in sys.argv:
-        text = ' '.join(sys.argv[1:])
-        if text != '':
-            Organizer(bdpath).add(text)
-        else:
-            Organizer(bdpath).show()
-    else:
+    import select
+
+    text = ''
+    # if have data on stdin
+    if '--show' in sys.argv:
         Organizer(bdpath).show()
+    elif select.select([sys.stdin,],[],[],0.0)[0]:
+        text = ''.join(sys.stdin.readlines())
+    else:
+        text = ' '.join(sys.argv[1:])
+    if text != '':
+        Organizer(bdpath).add(text)
 
 # vi: ft=python:tw=0:ts=4
 
