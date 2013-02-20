@@ -97,7 +97,10 @@ class SimpleNoti():
     def show(self, text = ''):
         """change of the text for notify and show"""
         self.text = text
-        pynotify.Notification(self.summary, self.text).show()
+        n = pynotify.Notification(self.summary, self.text)
+        n.set_urgency(pynotify.URGENCY_CRITICAL)
+        n.set_timeout(pynotify.EXPIRES_NEVER)
+        n.show()
 
 class Organizer(SimpleNoti):
     def __init__(self, bdpath = 'memorg.bd'):
@@ -149,6 +152,8 @@ class Organizer(SimpleNoti):
 
 
 if __name__ == "__main__":
+    #s = SimpleNoti()
+    #s.show('test')
     if '--show' not in sys.argv:
         text = ' '.join(sys.argv[1:])
         if text != '':
