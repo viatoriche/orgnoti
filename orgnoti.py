@@ -159,6 +159,11 @@ if __name__ == "__main__":
     # if have data on stdin
     if '--show' in sys.argv:
         Organizer(bdpath).show()
+    # TODO: list and del, install sqlitebrowser for this
+    elif '--list' in sys.argv:
+        Organizer(bdpath).list()
+    elif '--del' in sys.argv:
+        Organizer(bdpath).delete(sys.argv[2])
     elif select.select([sys.stdin,],[],[],0.0)[0]:
         text = ''.join(sys.stdin.readlines())
     else:
