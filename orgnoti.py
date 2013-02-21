@@ -53,6 +53,9 @@ import datetime
 import time
 import sys
 import re
+import locale
+
+enc = locale.getdefaultlocale()[1]
 
 # Initialization of pynotify, and add type of notify
 pynotify.init(noti_class)
@@ -116,10 +119,17 @@ class Organizer(SimpleNoti):
             pass
 
     def add(self, text, repeat = 1):
+        if text == u'':
+            return
+
         cur = self.conn.cursor()
 
         for url in re.findall(r'(?<!\])\bhttp://[^\s\[<]+', text):
-            text = text.replace(url, '<a href="{url}">{url}</a>'.format(url = url))
+            text = text.replace(url, '<a href="{url}">{url}</a>'.\
+                format(url = url))
+        for fileurl in re.findall(r'(?<!\])\bfile:///[^\s\[<]+', text):
+            text = text.replace(fileurl, '<a href="{fileurl}">{fileurl}</a>'.\
+                format(fileurl = fileurl))
 
         cur.execute("INSERT INTO Mems(Text, Date, Repeat) "\
                     "VALUES(?, ?, ?)",\
@@ -155,20 +165,21 @@ class Organizer(SimpleNoti):
 if __name__ == "__main__":
     import select
 
-    text = ''
+    text = u''
     # if have data on stdin
     if '--show' in sys.argv:
         Organizer(bdpath).show()
-    # TODO: list and del, install sqlitebrowser for this
+    # TODO: --list and --del, install sqlitebrowser for this
+    # TODO: --cmd
     elif '--list' in sys.argv:
         Organizer(bdpath).list()
     elif '--del' in sys.argv:
         Organizer(bdpath).delete(sys.argv[2])
     elif select.select([sys.stdin,],[],[],0.0)[0]:
-        text = ''.join(sys.stdin.readlines())
+        text = unicode(''.join(sys.stdin.readlines()), enc)
     else:
-        text = ' '.join(sys.argv[1:])
-    if text != '':
+        text = unicode(' '.join(sys.argv[1:]), enc)
+    if text != u'':
         Organizer(bdpath).add(text)
 
 # vi: ft=python:tw=0:ts=4
