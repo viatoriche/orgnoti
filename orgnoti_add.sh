@@ -1,7 +1,8 @@
 #!/bin/sh
 # qtinput --> https://github.com/viatoriche/QtInput
 
-qtinput | orgnoti
+filename=`mktemp`
+qtinput $filename && cat $filename | orgnoti
 
 # vi: ts=2 sw=2
 
